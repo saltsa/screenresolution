@@ -17,7 +17,7 @@ int main (int argc, const char * argv[])
 {
   int h;                          // horizontal resolution
   int v;                          // vertical resolution
-  CGDisplayModeRef switchMode;     // mode to switch to
+  CGDisplayModeRef switchMode = NULL;     // mode to switch to
   CGDirectDisplayID mainDisplay;  // ID of main display
 
   CFDictionaryRef CGDisplayCurrentMode(CGDirectDisplayID display);
@@ -28,15 +28,17 @@ int main (int argc, const char * argv[])
   CGSize screenSize  = screenFrame.size;
   printf("Current resolution: %4.0f %4.0f\n", screenSize.width, screenSize.height);
   printf("\n");
-  CFArrayRef foo = CGDisplayCopyAllDisplayModes(kCGDirectMainDisplay, NULL);
+
+  // get all modes, iterate through them and select if it matches cmdline parameters
+  CFArrayRef allDisplayModes = CGDisplayCopyAllDisplayModes(kCGDirectMainDisplay, NULL);
   printf("Resolutions supported by the display:\n");
-  for (int i = 0; i < CFArrayGetCount(foo) ; i++) {
-    CGDisplayModeRef tmp = (CGDisplayModeRef)CFArrayGetValueAtIndex(foo,i);
-    int ht = CGDisplayModeGetHeight(tmp);
-    int wt = CGDisplayModeGetWidth(tmp);
+  for (int i = 0; i < CFArrayGetCount(allDisplayModes) ; i++) {
+    CGDisplayModeRef curMode = (CGDisplayModeRef)CFArrayGetValueAtIndex(allDisplayModes, i);
+    int ht = CGDisplayModeGetHeight(curMode);
+    int wt = CGDisplayModeGetWidth(curMode);
     char *selected = " ";
     if(ht == v && wt == h) {
-      switchMode = tmp;
+      switchMode = curMode;
       selected = "*";
     }
     printf("[%s] %4d %4d\n", selected, wt, ht);
